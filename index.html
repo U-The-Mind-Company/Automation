@@ -174,7 +174,7 @@
     </div>
     <div class="thank-you-card" id="thankYouCard">
       <h2>Thank You!</h2>
-      <p>We will send you the white paper shortly.</p>
+      <p>You will receive your white paper shortly.</p>
       <button class="gradient-button" onclick="showForm()">Back to Form</button>
     </div>
   </div>
@@ -185,103 +185,64 @@
     const signupForm = document.getElementById('signupForm');
     const errorMessage = document.getElementById('errorMessage');
 
-    // Replace with your Apps Script Web App URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyd695ZK8s0MBIsHNGtjhBdoh7HPlP5FoWgj4n38u5l3R2Xe_JdcvDuaNiHOENwUaad4A/exec";
+    // Replace with your n8n Webhook URL
+    const SCRIPT_URL = "https://u-the-mind-company.app.n8n.cloud/webhook-test/a85f48f1-8189-48c0-99bc-619f31d6545c";
 
     async function sendFormData(name, email, linkedin) {
-      try {
-        const response = await fetch(SCRIPT_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, linkedin })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-      } catch (error) {
-        console.error("Error sending form data:", error);
-        throw error;
-      }
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, linkedin })
+      });
+      return await response.json();
     }
 
-    function isValidUrl(string) {
-      try {
-        const url = new URL(string);
-        return string.includes('linkedin.com');
-      } catch (_) {
-        return false;
-      }
-    }
-
-    function isValidEmail(email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(email);
-    }
-
-    function showForm() {
-      thankYouCard.style.display = 'none';
-      formSection.style.display = 'block';
-    }
-
-    signupForm.addEventListener('submit', async function(e) {
+    signupForm.addEventListener('submit', function(e) {
       e.preventDefault();
 
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const linkedin = document.getElementById('linkedin').value.trim();
 
-      // Validation
-      let isValid = true;
-      let errorMsg = "Please fill out all fields correctly.";
-
-      if (!name) {
-        isValid = false;
-      } else if (!email || !isValidEmail(email)) {
-        isValid = false;
-        errorMsg = "Please enter a valid email address.";
-      } else if (!linkedin || !isValidUrl(linkedin)) {
-        isValid = false;
-        errorMsg = "Please enter a valid LinkedIn URL.";
-      }
-
-      if (isValid) {
+      if (name && email && linkedin && isValidUrl(linkedin)) {
         errorMessage.style.display = 'none';
         formSection.style.display = 'none';
         thankYouCard.style.display = 'block';
+        signupForm.reset();
 
-        try {
-          const data = await sendFormData(name, email, linkedin);
-          
-          if (data && data.pdf) {
-            // Create a temporary link to download the PDF
+        sendFormData(name, email, linkedin).then(data => {
+          if (data.pdf) {
             const link = document.createElement('a');
             link.href = data.pdf;
             link.download = 'Gamma_Whitepaper.pdf';
-            link.target = '_blank'; // Open in new tab as fallback
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
           } else {
-            alert("No matching PDF found for this LinkedIn URL.");
+            alert(data.message || "No matching PDF found for this LinkedIn URL.");
           }
-        } catch (err) {
-          console.error("Error:", err);
-          alert("An error occurred while processing your request. Please try again.");
-          // Show form again on error
-          showForm();
-        }
+        }).catch(err => {
+          alert("Error: " + err);
+        });
 
-        // Reset form after successful submission
-        signupForm.reset();
       } else {
-        errorMessage.textContent = errorMsg;
         errorMessage.style.display = 'block';
       }
     });
+
+    function isValidUrl(string) {
+      try {
+        new URL(string);
+        return string.includes('linkedin.com');
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function showForm() {
+      thankYouCard.style.display = 'none';
+      formSection.style.display = 'block';
+    }
   </script>
 </body>
 </html>
-
