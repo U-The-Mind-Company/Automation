@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join U: The Mind Company</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #ffffff;
+      color: #1f2937;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      padding: 40px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: opacity 0.3s ease;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #111827;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      color: #4b5563;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #1f2937;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #f9fafb;
+      color: #1f2937;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+    }
+
+    .gradient-button {
+      background-image: linear-gradient(to right, #ef4444, #3b82f6) !important;
+      border: none !important;
+      color: white !important;
+      padding: 0.5rem 1.5rem;
+      border-radius: 0.25rem;
+      font-weight: bold;
+      transition: opacity 0.3s ease;
+      width: 100%;
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    .gradient-button:hover {
+      opacity: 0.9;
+    }
+
+    .gradient-button:active {
+      opacity: 0.8;
+    }
+
+    .error-message {
+      display: none;
+      color: #dc2626;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .thank-you-card {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    .thank-you-card h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 20px;
+    }
+
+    .thank-you-card p {
+      font-size: 1.1rem;
+      color: #4b5563;
+      margin-bottom: 30px;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1, .thank-you-card h2 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div id="formSection">
+      <h1>Get our White Paper</h1>
+      <p>Share your details and we will send you the white paper.</p>
+      <form id="signupForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="linkedin">LinkedIn Post URL</label>
+          <input type="url" id="linkedin" name="linkedin" placeholder="Enter the LinkedIn post URL that you engaged with" required>
+        </div>
+        <button type="submit" class="gradient-button">Submit</button>
+        <p class="error-message" id="errorMessage">Please fill out all fields correctly.</p>
+      </form>
+    </div>
+    <div class="thank-you-card" id="thankYouCard">
+      <h2>Thank You!</h2>
+      <p>We will send you the white paper shortly.</p>
+      <button class="gradient-button" onclick="showForm()">Back to Form</button>
+    </div>
+  </div>
+
+  <script>
+    const formSection = document.getElementById('formSection');
+    const thankYouCard = document.getElementById('thankYouCard');
+    const signupForm = document.getElementById('signupForm');
+    const errorMessage = document.getElementById('errorMessage');
+
+    // Replace with your Apps Script Web App URL
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3v_omfOvc39041KKtPWqc0HQsGdLVV7_fru590ZdRlJonL7N-FDHCiDeVH44zYc26ag/exec";
+
+    async function sendFormData(name, email, linkedin) {
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, linkedin })
+      });
+      return await response.json();
+    }
+
+    signupForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const linkedin = document.getElementById('linkedin').value.trim();
+
+      if (name && email && linkedin && isValidUrl(linkedin)) {
+        errorMessage.style.display = 'none';
+        formSection.style.display = 'none';
+        thankYouCard.style.display = 'block';
+        signupForm.reset();
+
+        sendFormData(name, email, linkedin).then(data => {
+          if (data.pdf) {
+            const link = document.createElement('a');
+            link.href = data.pdf;
+            link.download = 'Gamma_Whitepaper.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else {
+            alert("No matching PDF found for this LinkedIn URL.");
+          }
+        }).catch(err => {
+          alert("Error: " + err);
+        });
+
+      } else {
+        errorMessage.style.display = 'block';
+      }
+    });
+
+    function isValidUrl(string) {
+      try {
+        new URL(string);
+        return string.includes('linkedin.com');
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function showForm() {
+      thankYouCard.style.display = 'none';
+      formSection.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
