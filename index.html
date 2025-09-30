@@ -189,62 +189,98 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3v_omfOvc39041KKtPWqc0HQsGdLVV7_fru590ZdRlJonL7N-FDHCiDeVH44zYc26ag/exec";
 
     async function sendFormData(name, email, linkedin) {
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, linkedin })
-      });
-      return await response.json();
-    }
-
-    signupForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const linkedin = document.getElementById('linkedin').value.trim();
-
-      if (name && email && linkedin && isValidUrl(linkedin)) {
-        errorMessage.style.display = 'none';
-        formSection.style.display = 'none';
-        thankYouCard.style.display = 'block';
-        signupForm.reset();
-
-        sendFormData(name, email, linkedin).then(data => {
-          if (data.pdf) {
-            const link = document.createElement('a');
-            link.href = data.pdf;
-            link.download = 'Gamma_Whitepaper.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          } else {
-            alert("No matching PDF found for this LinkedIn URL.");
-          }
-        }).catch(err => {
-          alert("Error: " + err);
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, linkedin })
         });
-
-      } else {
-        errorMessage.style.display = 'block';
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error("Error sending form data:", error);
+        throw error;
       }
-    });
+    }
 
     function isValidUrl(string) {
       try {
-        new URL(string);
+        const url = new URL(string);
         return string.includes('linkedin.com');
       } catch (_) {
         return false;
       }
     }
 
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
     function showForm() {
       thankYouCard.style.display = 'none';
       formSection.style.display = 'block';
     }
+
+    signupForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const linkedin = document.getElementById('linkedin').value.trim();
+
+      // Validation
+      let isValid = true;
+      let errorMsg = "Please fill out all fields correctly.";
+
+      if (!name) {
+        isValid = false;
+      } else if (!email || !isValidEmail(email)) {
+        isValid = false;
+        errorMsg = "Please enter a valid email address.";
+      } else if (!linkedin || !isValidUrl(linkedin)) {
+        isValid = false;
+        errorMsg = "Please enter a valid LinkedIn URL.";
+      }
+
+      if (isValid) {
+        errorMessage.style.display = 'none';
+        formSection.style.display = 'none';
+        thankYouCard.style.display = 'block';
+
+        try {
+          const data = await sendFormData(name, email, linkedin);
+          
+          if (data && data.pdf) {
+            // Create a temporary link to download the PDF
+            const link = document.createElement('a');
+            link.href = data.pdf;
+            link.download = 'Gamma_Whitepaper.pdf';
+            link.target = '_blank'; // Open in new tab as fallback
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else {
+            alert("No matching PDF found for this LinkedIn URL.");
+          }
+        } catch (err) {
+          console.error("Error:", err);
+          alert("An error occurred while processing your request. Please try again.");
+          // Show form again on error
+          showForm();
+        }
+
+        // Reset form after successful submission
+        signupForm.reset();
+      } else {
+        errorMessage.textContent = errorMsg;
+        errorMessage.style.display = 'block';
+      }
+    });
   </script>
 </body>
 </html>
-
-
