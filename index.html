@@ -164,10 +164,9 @@
           <label for="email">Email Address</label>
           <input type="email" id="email" name="email" placeholder="Enter your email" required>
         </div>
-        <div class="form-group">
-          <label for="linkedin">LinkedIn Post URL</label>
-          <input type="url" id="linkedin" name="linkedin" placeholder="Enter the LinkedIn post URL that you engaged with" required>
-        </div>
+        <!-- Hidden LinkedIn URN field -->
+        <input type="hidden" id="linkedin" name="linkedin">
+        
         <button type="submit" class="gradient-button">Submit</button>
         <p class="error-message" id="errorMessage">Please fill out all fields correctly.</p>
       </form>
@@ -184,9 +183,17 @@
     const thankYouCard = document.getElementById('thankYouCard');
     const signupForm = document.getElementById('signupForm');
     const errorMessage = document.getElementById('errorMessage');
+    const linkedinField = document.getElementById('linkedin');
 
     // Replace with your n8n Webhook URL
     const SCRIPT_URL = "https://u-the-mind-company.app.n8n.cloud/webhook-test/a85f48f1-8189-48c0-99bc-619f31d6545c";
+
+    // Auto-capture li_urn param from URL
+    const params = new URLSearchParams(window.location.search);
+    const urn = params.get("li_urn");
+    if (urn) {
+      linkedinField.value = urn; // Autofill hidden field
+    }
 
     async function sendFormData(name, email, linkedin) {
       const response = await fetch(SCRIPT_URL, {
@@ -202,9 +209,9 @@
 
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
-      const linkedin = document.getElementById('linkedin').value.trim();
+      const linkedin = linkedinField.value.trim(); // now auto-filled
 
-      if (name && email && linkedin && isValidUrl(linkedin)) {
+      if (name && email && linkedin) {
         errorMessage.style.display = 'none';
         formSection.style.display = 'none';
         thankYouCard.style.display = 'block';
@@ -219,7 +226,7 @@
             link.click();
             document.body.removeChild(link);
           } else {
-            alert(data.message || "No matching PDF found for this LinkedIn URL.");
+            alert(data.message || "No matching PDF found for this LinkedIn post.");
           }
         }).catch(err => {
           alert("Error: " + err);
@@ -229,15 +236,6 @@
         errorMessage.style.display = 'block';
       }
     });
-
-    function isValidUrl(string) {
-      try {
-        new URL(string);
-        return string.includes('linkedin.com');
-      } catch (_) {
-        return false;
-      }
-    }
 
     function showForm() {
       thankYouCard.style.display = 'none';
