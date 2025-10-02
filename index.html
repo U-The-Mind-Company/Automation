@@ -6,11 +6,7 @@
   <title>Join U: The Mind Company</title>
   <style>
     /* Reset and base styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -35,46 +31,25 @@
       transition: opacity 0.3s ease;
     }
 
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 20px;
-      color: #111827;
-    }
+    h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 20px; color: #111827; }
+    p { font-size: 1.1rem; margin-bottom: 30px; color: #4b5563; }
 
-    p {
-      font-size: 1.1rem;
-      margin-bottom: 30px;
-      color: #4b5563;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
+    .form-group { margin-bottom: 20px; text-align: left; }
 
     label {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 8px;
-      color: #1f2937;
+      display: block; font-size: 0.9rem; font-weight: 500;
+      margin-bottom: 8px; color: #1f2937;
     }
 
     input {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      background: #f9fafb;
-      color: #1f2937;
+      width: 100%; padding: 12px; font-size: 1rem;
+      border: 1px solid #d1d5db; border-radius: 8px;
+      background: #f9fafb; color: #1f2937;
       transition: border-color 0.3s ease;
     }
 
     input:focus {
-      outline: none;
-      border-color: #3b82f6;
+      outline: none; border-color: #3b82f6;
       box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
     }
 
@@ -91,62 +66,38 @@
       cursor: pointer;
     }
 
-    .gradient-button:hover {
-      opacity: 0.9;
-    }
-
-    .gradient-button:active {
-      opacity: 0.8;
-    }
+    .gradient-button:hover { opacity: 0.9; }
+    .gradient-button:active { opacity: 0.8; }
 
     .error-message {
-      display: none;
-      color: #dc2626;
-      font-size: 0.9rem;
-      margin-top: 10px;
+      display: none; color: #dc2626;
+      font-size: 0.9rem; margin-top: 10px;
     }
 
     .thank-you-card {
-      display: none;
-      text-align: center;
-      padding: 40px;
-      opacity: 0;
+      display: none; text-align: center;
+      padding: 40px; opacity: 0;
       transform: translateY(20px);
       animation: fadeInUp 0.5s ease forwards;
     }
 
     .thank-you-card h2 {
-      font-size: 2rem;
-      font-weight: 600;
-      color: #111827;
-      margin-bottom: 20px;
+      font-size: 2rem; font-weight: 600;
+      color: #111827; margin-bottom: 20px;
     }
 
     .thank-you-card p {
-      font-size: 1.1rem;
-      color: #4b5563;
-      margin-bottom: 30px;
+      font-size: 1.1rem; color: #4b5563; margin-bottom: 30px;
     }
 
     @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @media (max-width: 480px) {
-      .container {
-        padding: 20px;
-      }
-
-      h1, .thank-you-card h2 {
-        font-size: 2rem;
-      }
-
-      p {
-        font-size: 1rem;
-      }
+      .container { padding: 20px; }
+      h1, .thank-you-card h2 { font-size: 2rem; }
+      p { font-size: 1rem; }
     }
   </style>
 </head>
@@ -219,12 +170,7 @@
 
         sendFormData(name, email, linkedin).then(data => {
           if (data.pdf) {
-            const link = document.createElement('a');
-            link.href = data.pdf;
-            link.download = 'Gamma_Whitepaper.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            window.open(data.pdf, "_blank");
           } else {
             alert(data.message || "No matching PDF found for this LinkedIn post.");
           }
